@@ -506,7 +506,8 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
             else
             {
                 /* arm user space timer based on action */
-                upio_start_stop_timer(action);
+                if (lpm_proc_cb.timer_created)
+                	upio_start_stop_timer(action);
             }
 #endif
 
