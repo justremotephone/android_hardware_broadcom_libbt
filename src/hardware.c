@@ -607,6 +607,11 @@ static uint8_t hw_config_read_bdaddr(HC_BT_HDR *p_buf)
 }
 #endif // (USE_CONTROLLER_BDADDR == TRUE)
 
+#if (SCO_CFG_INCLUDED == TRUE)
+void hw_sco_config(void);
+#endif
+static int hw_set_SCO_codec(uint16_t codec);
+
 /*******************************************************************************
 **
 ** Function         hw_config_cback
@@ -888,6 +893,21 @@ void hw_config_cback(void *p_mem)
                     hw_cfg_cb.fw_fd = -1;
                 }
 
+                /* init SCO settings needed for Android O
+                   since hw_sco_config is not called any more */
+#if (SCO_CFG_INCLUDED == TRUE)
+                hw_sco_config();
+#endif
+                /* init SCO codec as mSBC disabled, needed for Android O 
+                   since hw_set_audio_state is not called any more, this effectively
+                   enables SCO_CODEC_CVSD */
+                if (!hw_set_SCO_codec(SCO_CODEC_NONE)) {
+                    ALOGI("SCO codec initialization started...");
+                }
+                else {
+                    ALOGE("SCO codec initialization failed!");
+                }
+		
                 is_proceeding = TRUE;
                 break;
 
